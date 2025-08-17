@@ -3,7 +3,7 @@
 # Test script for messaging service endpoints
 # This script tests the local messaging service using the JSON examples from README.md
 
-BASE_URL="http://localhost:8080"
+BASE_URL="http://localhost:8000" # Updated to run on default uvicorn port
 CONTENT_TYPE="Content-Type: application/json"
 
 echo "=== Testing Messaging Service Endpoints ==="
@@ -29,12 +29,12 @@ echo "2. Testing MMS send..."
 curl -X POST "$BASE_URL/api/messages/sms" \
   -H "$CONTENT_TYPE" \
   -d '{
-    "from": "+12016661234",
-    "to": "+18045551234",
+    "from": "+18045551234",
+    "to": "+12016661234",
     "type": "mms",
     "body": "Hello! This is a test MMS message with attachment.",
-    "attachments": ["https://example.com/image.jpg"],
-    "timestamp": "2024-11-01T14:00:00Z"
+    "attachments": ["https://example.com/image.jpg", "https://example2.com/image.png"],
+    "timestamp": "2024-11-02T14:00:00Z"
   }' \
   -w "\nStatus: %{http_code}\n\n"
 
@@ -47,7 +47,7 @@ curl -X POST "$BASE_URL/api/messages/email" \
     "to": "contact@gmail.com",
     "body": "Hello! This is a test email message with <b>HTML</b> formatting.",
     "attachments": ["https://example.com/document.pdf"],
-    "timestamp": "2024-11-01T14:00:00Z"
+    "timestamp": "2024-11-03T14:00:00Z"
   }' \
   -w "\nStatus: %{http_code}\n\n"
 
@@ -56,13 +56,13 @@ echo "4. Testing incoming SMS webhook..."
 curl -X POST "$BASE_URL/api/webhooks/sms" \
   -H "$CONTENT_TYPE" \
   -d '{
-    "from": "+18045551234",
-    "to": "+12016661234",
+    "from": "+12016661234",
+    "to": "+18045551234",
     "type": "sms",
     "messaging_provider_id": "message-1",
     "body": "This is an incoming SMS message",
     "attachments": null,
-    "timestamp": "2024-11-01T14:00:00Z"
+    "timestamp": "2024-11-04T14:00:00Z"
   }' \
   -w "\nStatus: %{http_code}\n\n"
 
@@ -77,7 +77,7 @@ curl -X POST "$BASE_URL/api/webhooks/sms" \
     "messaging_provider_id": "message-2",
     "body": "This is an incoming MMS message",
     "attachments": ["https://example.com/received-image.jpg"],
-    "timestamp": "2024-11-01T14:00:00Z"
+    "timestamp": "2024-11-05T14:00:00Z"
   }' \
   -w "\nStatus: %{http_code}\n\n"
 
@@ -91,9 +91,13 @@ curl -X POST "$BASE_URL/api/webhooks/email" \
     "xillio_id": "message-3",
     "body": "<html><body>This is an incoming email with <b>HTML</b> content</body></html>",
     "attachments": ["https://example.com/received-document.pdf"],
-    "timestamp": "2024-11-01T14:00:00Z"
+    "timestamp": "2024-11-06T14:00:00Z"
   }' \
   -w "\nStatus: %{http_code}\n\n"
+
+echo "------------------ Attention ------------------"
+echo Previous test cases have been modified in order to better show conversation flow
+echo "-----------------------------------------------"
 
 # Test 7: Get conversations
 echo "7. Testing get conversations..."
@@ -101,10 +105,10 @@ curl -X GET "$BASE_URL/api/conversations" \
   -H "$CONTENT_TYPE" \
   -w "\nStatus: %{http_code}\n\n"
 
-# Test 8: Get messages for a conversation (example conversation ID)
-echo "8. Testing get messages for conversation..."
-curl -X GET "$BASE_URL/api/conversations/1/messages" \
-  -H "$CONTENT_TYPE" \
-  -w "\nStatus: %{http_code}\n\n"
+# # Test 8: Get messages for a conversation (example conversation ID)
+# echo "8. Testing get messages for conversation..."
+# curl -X GET "$BASE_URL/api/conversations/1/messages" \
+#   -H "$CONTENT_TYPE" \
+#   -w "\nStatus: %{http_code}\n\n"
 
 echo "=== Test script completed ===" 
